@@ -57,7 +57,7 @@ export default class Story extends Phaser.Scene {
 		// );
 		this.time.addEvent({
 			delay: this.wordDelay,
-			repeat: this.line.length,
+			repeat: this.line.length - 1,
 			callback: this.nextWord,
 			callbackScope: this,
 		});
@@ -67,7 +67,7 @@ export default class Story extends Phaser.Scene {
 	nextWord() {
 		this.story.text = this.story.text.concat(this.line[this.wordIndex] + " ");
 		this.wordIndex++;
-		if (this.wordIndex === this.line.length) {
+		if (this.wordIndex === this.line.length - 1) {
 			this.story.text = this.story.text.concat("\n");
 			// this.time.events.add(this.lineDelay, this.nextLine, this);
 			this.time.addEvent({
@@ -79,8 +79,9 @@ export default class Story extends Phaser.Scene {
 	}
 
 	create() {
-		this.story = this.add.text(0, 0, "Press BACKSPACE To Skip", {
-			fontFamily: "Game-Over",
+		this.story = this.add.text(0, 0, "Press BACKSPACE To Skip\n", {
+			fontFamily: "Segeo UI",
+			fontSize: "40px",
 			color: "#ffffff",
 		});
 
@@ -95,12 +96,12 @@ export default class Story extends Phaser.Scene {
 	update() {
 		if (this.skip.isDown) {
 			this.scene.stop();
-			this.scene.resume("Main", {playerDead: false, fromStart: false});
+			this.scene.start("Main", {playerDead: false, fromStart: false});
 		}
 
 		if (this.done.isDown && this.storyOver) {
 			this.scene.stop();
-			this.scene.resume("Main", {playerDead: false, fromStart: false});
+			this.scene.start("Main", {playerDead: false, fromStart: false});
 		}
 	}
 }
