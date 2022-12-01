@@ -130,4 +130,13 @@ body {
 	width: auto;
 	margin-right: 20px;
 	image-rendering: pixelated;
+	transition: opacity 0.8s ease-in-out;
+}
+
+.fadeIn {
+	opacity: 1 !important;
+}
+
+.fadeOut {
+	opacity: 0;
 }

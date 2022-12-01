@@ -1,8 +1,10 @@
 export default function resetLives() {
 	const livesBar = document.getElementById("lives");
-	const life = document.createElement("img");
-	life.src = "assets/player-dead.png";
-	livesBar.appendChild(life);
-	livesBar.appendChild(life);
-	livesBar.appendChild(life);
+	livesBar.innerHTML = "";
+	for (let i = 0; i < 3; i++) {
+		const life = document.createElement("img");
+		life.src = "assets/player-dead.png";
+		life.style.opacity = 1;
+		livesBar.appendChild(life);
+	}
 }

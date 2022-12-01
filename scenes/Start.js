@@ -1,5 +1,6 @@
 import Phaser, {Tilemaps} from "phaser";
 import Button from "./utilities/Button";
+import resetLives from "./utilities/ResetLives";
 
 export default class Start extends Phaser.Scene {
 	constructor() {
@@ -24,7 +25,8 @@ export default class Start extends Phaser.Scene {
 	create() {
 		this.startButton = new Button(100, 100, "Start", this, () => {
 			this.backgroundMusic.volume = 0.3;
-			this.scene.start("Main", {playerDead: false, fromStart: true});
+			resetLives();
+			this.scene.start("story");
 		});
 
 		this.rgb = {

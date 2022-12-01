@@ -131,6 +131,7 @@ export default class Main extends Phaser.Scene {
 		this.keyW;
 		this.lives = 3;
 		this.previousLiveScore = 0;
+		this.highScore = localStorage.getItem("high-score");
 		this.keyA;
 		this.keyS;
 		this.keyD;
@@ -163,6 +164,7 @@ export default class Main extends Phaser.Scene {
 
 	init(data) {
 		this.playerDead = data.playerDead;
+		this.highScore = localStorage.getItem("high-score");
 		if (data.fromStart) {
 			this.wave = 1;
 			this.lives = 3;
@@ -217,6 +219,17 @@ export default class Main extends Phaser.Scene {
 		// background.setOrigin(0.5, 0.5).setDisplaySize(1200, 900);
 
 		//Setting the world bounds
+		window.addEventListener(
+			"beforeunload",
+			function (e) {
+				localStorage.setItem("high-score", this.highScore);
+			},
+			{capture: true}
+		);
+
+		document.addEventListener("visibilitychange", (event) => {
+			localStorage.setItem("high-score", this.highScore);
+		});
 		this.physics.world.setBounds(0, 0, 1600, 1200);
 		this.waveMessage = this.add
 			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
@@ -429,6 +442,7 @@ export default class Main extends Phaser.Scene {
 	}
 
 	playerDyingFunction(player, enemy) {
+		localStorage.setItem("high-score", this.highScore);
 		this.playerDead = true;
 		this.playerDeath.play();
 		// this.player.anims.play("idle", true);
@@ -508,11 +522,18 @@ export default class Main extends Phaser.Scene {
 
 	updateLives(lifeType) {
 		if (lifeType === "remove") {
-			this.livesBar.removeChild(this.livesBar.lastChild);
+			this.livesBar.lastChild.classList.toggle("fadeOut");
+			setTimeout(() => {
+				this.livesBar.removeChild(this.livesBar.lastChild);
+			}, 850);
 		} else if (lifeType === "add") {
 			const newLife = document.createElement("img");
 			newLife.src = "assets/player-dead.png";
+			newLife.style.opacity = 0;
 			this.livesBar.appendChild(newLife);
+			setTimeout(() => {
+				newLife.classList.add("fadeIn");
+			}, 0);
 		}
 	}
 
@@ -531,10 +552,18 @@ export default class Main extends Phaser.Scene {
 		console.log(this.playerBullets.children.entries.length);
 
 		if (!this.playerDead && !this.wonWave) {
-			if (this.score >= this.previousLiveScore + 15000) {
+			if (this.theScore >= this.previousLiveScore + 15000) {
+				console.log("new score");
 				this.lives += 1;
 				this.previousLiveScore += 15000;
 				this.updateLives("add");
+			}
+
+			if (this.theScore >= this.highScore) {
+				this.highScore = this.theScore;
+				document.getElementsByClassName(
+					"highScore"
+				)[0].innerText = `HIGH SCORE: ${this.highScore}`;
 			}
 
 			this.robotEnemies.children.iterate((child) => {
@@ -607,6 +636,7 @@ export default class Main extends Phaser.Scene {
 				}
 			} else if (this.pauseButton.isDown) {
 				console.log("Paused");
+				localStorage.setItem("high-score", this.highScore);
 				this.scene.pause();
 				this.scene.launch("pause");
 			} else {
@@ -640,9 +670,9 @@ export default class Main extends Phaser.Scene {
 }
 
 //TODO:
-// Lives
 // Story Page
 // Robots
 // Improved UI
 // Collectable particle emitter
 // High Score
+// Two Players?
