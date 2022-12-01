@@ -6,7 +6,7 @@ import Start from "./scenes/Start.js";
 import Story from "./scenes/StartingStory.js";
 
 const highScore = localStorage.getItem("high-score");
-if (highScore.type === undefined) {
+if (typeof highScore === undefined) {
 	console.log("None present");
 	localStorage.setItem("high-score", 10000);
 	console.log(localStorage.getItem("high-score"));
@@ -40,5 +40,5 @@ const game = new Phaser.Game({
 
 window.addEventListener("resize", (event) => {
 	console.log("Resizing");
-	game.scale.resize(window.innerWidth * 0.9, window.innerHeight * 0.9);
+	game.scale.resize(window.innerWidth - 90, window.innerHeight - 200);
 });

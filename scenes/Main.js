@@ -443,6 +443,8 @@ export default class Main extends Phaser.Scene {
 
 	playerDyingFunction(player, enemy) {
 		localStorage.setItem("high-score", this.highScore);
+
+		console.log(localStorage.getItem("high-score"));
 		this.playerDead = true;
 		this.playerDeath.play();
 		// this.player.anims.play("idle", true);
@@ -671,8 +673,13 @@ export default class Main extends Phaser.Scene {
 
 //TODO:
 // Story Page
-// Robots
+// - Fix Positioning
+// More Robots
 // Improved UI
+// - Move Start Button
+// - Animate GameOver
+// - Move Re-Try button
+// - Move Pause Button
+// - Fix CSS Elements so their position is static
 // Collectable particle emitter
-// High Score
 // Two Players?
