@@ -5,7 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css">
-    <link rel="preload" as="font" href="assets/Game-Over.ttf" type="font/ttf"/>
+    <style media="screen" type="text/css">
+      @font-face {
+        font-family: GameFont;
+        src: url("./assets/GameFont.ttf");
+        font-weight:400;
+        font-weight:normal;
+      }
+    </style>
     <title>Vite App</title>
   </head>
   <body>
@@ -15,6 +22,7 @@
       <label class="highScore gameUIItem">HIGH SCORE: 100000</label>
       <label class="currentScore gameUIItem">SCORE: 0</label>
     </div>
+    <div id="scoreAdditions"></div>
     <div id="app">
     </div>
     <script type="module" src="/main.js"></script>

@@ -1,8 +1,3 @@
-@font-face {
-	font-family: Game-Over;
-	src: url("./Game-Over.ttf");
-}
-
 html {
 	height: 100%;
 	width: 100%;
@@ -47,4 +42,92 @@ body {
 }
 .gameUIItem:nth-child(3) {
 	text-align: right;
+}
+
+#scoreAdditions {
+	display: flex;
+	position: absolute;
+	justify-content: center;
+	align-items: center;
+	width: 90%;
+	height: 40%;
+	margin-left: 5%;
+	margin-right: 5%;
+	margin-bottom: 5%;
+	margin-top: 40%;
+	z-index: 8;
+}
+
+.currentScore {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.highScore {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+@keyframes smallScoreBounce {
+	0% {
+		transform: scale(1)
+	}
+	20% {
+		transform: scale(3);
+	}
+	100% {
+		transform: scale(1);
+	}
+
+}
+
+@keyframes largeScoreBounce {
+	0% {
+		transform: scale(1)
+	}
+	20% {
+		transform: scale(4);
+	}
+	100% {
+		transform: scale(1);
+	}
+
+}
+
+.smallScore {
+	font-size: 30px;
+	height: fit-content;
+	width: fit-content;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	color: white;
+	/* transform: scale(1); */
+	animation: smallScoreBounce 1s;
+	transition: all 0.5s;
+}
+
+.largeScore {
+	font-size: 40px;
+	height: fit-content;
+	width: fit-content;
+	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	color: white;
+	/* transform: scale(1); */
+	animation: largeScoreBounce 1s;
+}
+
+#lives {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+#lives > img {
+	height: 40%;
+	width: auto;
+	margin-right: 20px;
+	image-rendering: pixelated;
 }

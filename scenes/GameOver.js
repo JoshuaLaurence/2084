@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import Button from "./utilities/Button";
+import resetLives from "./utilities/ResetLives";
 
 export default class GameOver extends Phaser.Scene {
 	constructor() {
@@ -24,6 +25,7 @@ export default class GameOver extends Phaser.Scene {
 			if (this.lives === 0) {
 				this.scene.stop("Main");
 				document.getElementsByClassName("currentScore")[0].innerText = "SCORE: 0";
+				resetLives();
 				this.scene.start("start", {musicPlaying: true});
 			} else this.scene.start("Main", {playerDead: false, fromStart: false});
 		});

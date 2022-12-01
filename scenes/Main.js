@@ -52,9 +52,9 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 	preUpdate(time, delta) {
 		super.preUpdate(time, delta);
 
-		if (this.y <= -32) {
-			this.setActive(false);
-			this.setVisible(false);
+		if (!this.scene.cameras.main.worldView.contains(this.x, this.y)) {
+			console.log("deleted");
+			this.destroy();
 		}
 	}
 }
@@ -130,6 +130,7 @@ export default class Main extends Phaser.Scene {
 		//this.cursor;
 		this.keyW;
 		this.lives = 3;
+		this.previousLiveScore = 0;
 		this.keyA;
 		this.keyS;
 		this.keyD;
@@ -140,14 +141,20 @@ export default class Main extends Phaser.Scene {
 		this.wave = 1;
 		this.wonWave = false;
 		this.weapon;
+		this.waveMessage;
 		this.theScore = 0;
 		this.lastFired = 0;
 		this.pauseButton;
 
 		this.weaponType = "normal";
+		this.deathParticles;
+
 		//this.hasGrenades;
 
 		this.currentScore = document.getElementsByClassName("currentScore")[0];
+		this.bigScoreDisplay = document.getElementById("scoreAdditions");
+		this.livesBar = document.getElementById("lives");
+		this.previousScoreTimeouts = [];
 
 		this.alreadyCollected = 0;
 		this.alreadyCollectedThisRound = 0;
@@ -190,7 +197,7 @@ export default class Main extends Phaser.Scene {
 			frameHeight: 13,
 		});
 		this.load.image("bullet", "./assets/playerBullet.png");
-		this.load.image("background", "./assets/background.jpg  ");
+		this.load.image("background", "./assets/background.jpg");
 
 		this.load.audio("pickupCollectable", "assets/pickupCollectable.wav");
 		this.load.audio("player-firing", "assets/playerShoots.wav");
@@ -199,6 +206,7 @@ export default class Main extends Phaser.Scene {
 
 		this.load.image("collectable", "assets/collectable.png");
 		this.load.image("deathCube", "./assets/deathCube.png");
+		this.load.image("deathParticle", "./assets/deathParticle.png");
 	}
 
 	create() {
@@ -210,6 +218,15 @@ export default class Main extends Phaser.Scene {
 
 		//Setting the world bounds
 		this.physics.world.setBounds(0, 0, 1600, 1200);
+		this.waveMessage = this.add
+			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
+				fontFamily: "GameFont",
+			})
+			.setOrigin(0.5, 0.5)
+			.setResolution(100);
+		this.waveMessage.setRotation(-100);
+		this.waveMessage.setScale(2000);
+		this.waveMessage.alpha = 0;
 
 		//Player Declaration
 		this.player = this.physics.add.sprite(600, 450, "player-idle");
@@ -224,7 +241,7 @@ export default class Main extends Phaser.Scene {
 
 		this.collectableInfo = this.physics.add.group();
 
-		for (let i = 0; i < 25 * this.wave; i++) {
+		for (let i = 0; i < 20 + 15 * (this.wave - 1); i++) {
 			const enemyCoOrds = this.generateRandomCoOrds();
 			const enemy = this.robotEnemies.create(
 				enemyCoOrds[0],
@@ -248,7 +265,7 @@ export default class Main extends Phaser.Scene {
 			this.physics.add.existing(collectable);
 		}
 
-		for (let j = 0; j < 5 * this.wave; j++) {
+		for (let j = 0; j < 3 + this.wave * 2; j++) {
 			const enemyCoOrds = this.generateRandomCoOrds();
 			const deathblock = this.deathBlocks.create(
 				enemyCoOrds[0],
@@ -269,6 +286,21 @@ export default class Main extends Phaser.Scene {
 		this.playerDeath.volume = 0.5;
 		this.robotDeath.volume = 0.5;
 
+		const deathParticle = this.add.particles("deathParticle");
+
+		this.deathParticles = deathParticle.createEmitter({
+			x: 400,
+			y: 300,
+			speed: {min: -800, max: 800},
+			angle: {min: 0, max: 360},
+			scale: {start: 0.5, end: 0},
+			blendMode: "SCREEN",
+			lifespan: 300,
+			gravityY: 800,
+		});
+
+		this.deathParticles.stop();
+
 		this.physics.add.collider(this.robotEnemies, this.robotEnemies);
 
 		this.physics.add.collider(this.robotEnemies, this.deathBlocks);
@@ -279,8 +311,7 @@ export default class Main extends Phaser.Scene {
 			(player, collectable) => {
 				this.alreadyCollected += 1;
 				this.alreadyCollectedThisRound += 1;
-				this.theScore += this.alreadyCollectedThisRound * 1000;
-				this.currentScore.innerText = `SCORE: ${this.theScore}`;
+				this.bumpUpScore("collectable");
 				this.pickupCollectable.play();
 				collectable.destroy();
 			}
@@ -310,8 +341,10 @@ export default class Main extends Phaser.Scene {
 			this.playerBullets,
 			this.robotEnemies,
 			(bullet, enemy) => {
-				this.theScore += 100;
-				this.currentScore.innerText = `SCORE: ${this.theScore}`;
+				this.bumpUpScore("robot");
+				this.deathParticles.setPosition(bullet.x, bullet.y);
+				this.deathParticles.explode();
+				this.deathParticles.explode();
 				this.robotDeath.play();
 				enemy.destroy();
 				bullet.destroy();
@@ -407,6 +440,7 @@ export default class Main extends Phaser.Scene {
 		});
 		player.anims.stop();
 		this.lives -= 1;
+		this.updateLives("remove");
 		this.scene.launch("game-over", {lives: this.lives});
 	}
 
@@ -428,6 +462,60 @@ export default class Main extends Phaser.Scene {
 		return [enemyX, enemyY];
 	}
 
+	bumpUpScore(scoreType) {
+		if (scoreType === "robot") {
+			this.theScore += 100;
+			this.currentScore.innerText = `SCORE: ${this.theScore}`;
+			this.bigScoreDisplay.innerHTML = "";
+			const smallScore = document.createElement("label");
+			this.bigScoreDisplay.appendChild(smallScore);
+			smallScore.classList.add("smallScore");
+			smallScore.innerText = "+100";
+			if (this.previousScoreTimeouts.length > 0) {
+				clearTimeout(this.previousScoreTimeouts[0]);
+				this.previousScoreTimeouts = [];
+			}
+			// setTimeout(() => {
+			// 	smallScore.
+			// }, 1200);
+			const timout = setTimeout(() => {
+				this.bigScoreDisplay.innerHTML = "";
+			}, 1200);
+			console.log(timout);
+			this.previousScoreTimeouts.push(timout);
+		} else if (scoreType === "collectable") {
+			this.theScore += this.alreadyCollectedThisRound * 1000;
+			this.currentScore.innerText = `SCORE: ${this.theScore}`;
+			this.bigScoreDisplay.innerHTML = "";
+			const largeScore = document.createElement("label");
+			this.bigScoreDisplay.appendChild(largeScore);
+			largeScore.classList.add("largeScore");
+			largeScore.innerText = `+${this.alreadyCollectedThisRound * 1000}`;
+			if (this.previousScoreTimeouts.length > 0) {
+				clearTimeout(this.previousScoreTimeouts[0]);
+				this.previousScoreTimeouts = [];
+			}
+			// setTimeout(() => {
+			// 	smallScore.
+			// }, 1200);
+			const timout = setTimeout(() => {
+				this.bigScoreDisplay.innerHTML = "";
+			}, 1200);
+			console.log(timout);
+			this.previousScoreTimeouts.push(timout);
+		}
+	}
+
+	updateLives(lifeType) {
+		if (lifeType === "remove") {
+			this.livesBar.removeChild(this.livesBar.lastChild);
+		} else if (lifeType === "add") {
+			const newLife = document.createElement("img");
+			newLife.src = "assets/player-dead.png";
+			this.livesBar.appendChild(newLife);
+		}
+	}
+
 	update(time, delta) {
 		//Any logic that needs to update continously goes here
 		//Update runs every frame of the browser
@@ -443,8 +531,14 @@ export default class Main extends Phaser.Scene {
 		console.log(this.playerBullets.children.entries.length);
 
 		if (!this.playerDead && !this.wonWave) {
+			if (this.score >= this.previousLiveScore + 15000) {
+				this.lives += 1;
+				this.previousLiveScore += 15000;
+				this.updateLives("add");
+			}
+
 			this.robotEnemies.children.iterate((child) => {
-				this.physics.moveToObject(child, this.player, 25 * this.wave);
+				this.physics.moveToObject(child, this.player, 20 + 10 * (this.wave - 1));
 				child.anims.play("robot-walk", true);
 			});
 
@@ -516,7 +610,7 @@ export default class Main extends Phaser.Scene {
 				this.scene.pause();
 				this.scene.launch("pause");
 			} else {
-				//this.player.anims.play("idle", true)
+				this.player.anims.stop();
 				this.player.setVelocityX(0);
 				this.player.setVelocityY(0);
 			}
@@ -526,6 +620,12 @@ export default class Main extends Phaser.Scene {
 				console.log("YOU WIN");
 				this.cameras.main.zoomTo(0.005, 1000);
 				this.cameras.main.rotateTo(100, 1000);
+				this.waveMessage.text = `Wave ${this.wave + 1}`;
+				this.add.tween({
+					targets: this.waveMessage,
+					duration: 1000,
+					alpha: 1,
+				});
 
 				setTimeout(() => {
 					this.wonWave = false;
@@ -538,3 +638,11 @@ export default class Main extends Phaser.Scene {
 		}
 	}
 }
+
+//TODO:
+// Lives
+// Story Page
+// Robots
+// Improved UI
+// Collectable particle emitter
+// High Score
