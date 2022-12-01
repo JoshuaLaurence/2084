@@ -1,0 +1,50 @@
+@font-face {
+	font-family: Game-Over;
+	src: url("./Game-Over.ttf");
+}
+
+html {
+	height: 100%;
+	width: 100%;
+}
+
+body {
+	display: block;
+	border: none;
+	margin: 0px;
+	height: 100%;
+	width: 100%;
+	background-color: black;
+}
+#app {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+	z-index: 3;
+}
+
+#gameUI {
+	top: 0px;
+	margin-left: 5%;
+	margin-right: 5%;
+	height: 100px;
+	width: 90%;
+	color: white;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	font-size: 30px;
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	position: absolute;
+}
+
+.gameUIItem:nth-child(1) {
+	text-align: left;
+}
+.gameUIItem:nth-child(2) {
+	text-align: center;
+}
+.gameUIItem:nth-child(3) {
+	text-align: right;
+}
