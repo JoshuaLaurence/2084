@@ -67,7 +67,7 @@ export default class Story extends Phaser.Scene {
 	nextWord() {
 		this.story.text = this.story.text.concat(this.line[this.wordIndex] + " ");
 		this.wordIndex++;
-		if (this.wordIndex === this.line.length - 1) {
+		if (this.wordIndex === this.line.length) {
 			this.story.text = this.story.text.concat("\n");
 			// this.time.events.add(this.lineDelay, this.nextLine, this);
 			this.time.addEvent({
