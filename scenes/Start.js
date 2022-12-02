@@ -67,12 +67,44 @@ export default class Start extends Phaser.Scene {
 
 	update(time, delta) {
 		this.changeRGB += time;
-		console.log(this.changeRGB);
+		console.log(this.rgb);
 		if (this.changeRGB / 1000 >= 10) {
 			this.changeRGB = 0;
-			this.rgb.red += 0.1;
-			this.rgb.green += 0.001;
-			this.rgb.blue += 0.01;
+			if (this.rgb.redIncrease) {
+				this.rgb.red += 0.001;
+				if (this.rgb.red >= 255) {
+					this.rgb.redIncrease = false;
+				}
+			} else if (this.rgb.redIncrease === false) {
+				this.rgb.red -= 0.001;
+				if (this.rgb.red <= 1) {
+					this.rgb.redIncrease = true;
+				}
+			}
+
+			if (this.rgb.greenIncrease) {
+				this.rgb.green += 0.01;
+				if (this.rgb.green >= 255) {
+					this.rgb.greenIncrease = false;
+				}
+			} else if (this.rgb.greenIncrease === false) {
+				this.rgb.green -= 0.01;
+				if (this.rgb.green <= 1) {
+					this.rgb.greenIncrease = true;
+				}
+			}
+
+			if (this.rgb.blueIncrease) {
+				this.rgb.blue += 0.1;
+				if (this.rgb.blue >= 255) {
+					this.rgb.blueIncrease = false;
+				}
+			} else if (this.rgb.blueIncrease === false) {
+				this.rgb.blue -= 0.1;
+				if (this.rgb.blue <= 1) {
+					this.rgb.blueIncrease = true;
+				}
+			}
 		}
 
 		this.cameras.main.backgroundColor.setTo(

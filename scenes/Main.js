@@ -156,6 +156,7 @@ export default class Main extends Phaser.Scene {
 
 		this.weaponType = "normal";
 		this.deathParticles;
+		this.collectableParticles;
 
 		//this.hasGrenades;
 
@@ -207,7 +208,6 @@ export default class Main extends Phaser.Scene {
 			frameHeight: 13,
 		});
 		this.load.image("bullet", "./assets/playerBullet.png");
-		this.load.image("background", "./assets/background.jpg");
 
 		this.load.spritesheet("walker-up-down", "./assets/walker-up&down.png", {
 			frameWidth: 13,
@@ -232,6 +232,8 @@ export default class Main extends Phaser.Scene {
 		this.load.image("collectable", "assets/collectable.png");
 		this.load.image("deathCube", "./assets/deathCube.png");
 		this.load.image("deathParticle", "./assets/deathParticle.png");
+		this.load.image("collectableParticle", "./assets/collectableParticle.png");
+		this.load.image("background", "./assets/background.png");
 	}
 
 	create() {
@@ -243,6 +245,7 @@ export default class Main extends Phaser.Scene {
 
 		//Setting the world bounds
 		this.physics.world.setBounds(0, 0, 1600, 1200);
+		this.add.tileSprite(775, 575, 1600, 1200, "background").setScale(2);
 		this.waveMessage = this.add
 			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
 				fontFamily: "GameFont",
@@ -312,12 +315,10 @@ export default class Main extends Phaser.Scene {
 
 		for (let j = 0; j < 3 + this.wave * 2; j++) {
 			const enemyCoOrds = this.generateRandomCoOrds();
-			const deathblock = this.deathBlocks.create(
-				enemyCoOrds[0],
-				enemyCoOrds[1],
-				"deathCube"
-			);
-			deathblock.setScale(Math.floor(Math.random() * (8 - 2 + 1) + 2));
+			const deathblock = this.deathBlocks
+				.create(enemyCoOrds[0], enemyCoOrds[1], "deathCube")
+				.setOrigin(0, 0);
+			deathblock.setScale(0.013 * Math.floor(Math.random() * (8 - 2 + 1) + 2));
 			//deathblock.setCollideWorldBounds(true);
 			this.physics.add.existing(deathblock).setImmovable();
 		}
@@ -347,6 +348,21 @@ export default class Main extends Phaser.Scene {
 
 		this.deathParticles.stop();
 
+		const collectableParticle = this.add.particles("collectableParticle");
+
+		this.collectableParticles = collectableParticle.createEmitter({
+			x: 400,
+			y: 300,
+			speed: {min: -1000, max: 1000},
+			angle: {min: 0, max: 360},
+			scale: {start: 0.5, end: 0},
+			blendMode: "SCREEN",
+			lifespan: 300,
+			gravityY: 500,
+		});
+
+		this.collectableParticles.stop();
+
 		this.physics.add.collider(this.robotEnemies, this.robotEnemies);
 
 		this.physics.add.collider(this.robotEnemies, this.deathBlocks);
@@ -358,6 +374,9 @@ export default class Main extends Phaser.Scene {
 				this.alreadyCollected += 1;
 				this.alreadyCollectedThisRound += 1;
 				this.bumpUpScore("collectable");
+				this.collectableParticles.setPosition(collectable.x, collectable.y);
+				this.collectableParticles.explode();
+				this.collectableParticles.explode();
 				this.pickupCollectable.play();
 				collectable.destroy();
 			}
@@ -834,14 +853,5 @@ export default class Main extends Phaser.Scene {
 }
 
 //TODO:
-// Story Page
-// - Fix Positioning
-// More Robots
-// Improved UI
-// - Move Start Button
-// - Animate GameOver
-// - Move Re-Try button
-// - Move Pause Button
-// - Fix CSS Elements so their position is static
 // Collectable particle emitter
 // Two Players?
