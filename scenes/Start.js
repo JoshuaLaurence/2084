@@ -23,11 +23,18 @@ export default class Start extends Phaser.Scene {
 	}
 
 	create() {
-		this.startButton = new Button(100, 100, "Start", this, () => {
-			this.backgroundMusic.volume = 0.3;
-			resetLives();
-			this.scene.start("story");
-		});
+		this.startButton = new Button(
+			window.innerWidth / 2 - 135,
+			window.innerHeight / 2 + 100,
+			"Start",
+			this,
+			() => {
+				this.backgroundMusic.volume = 0.3;
+				resetLives();
+				this.scene.start("story");
+			},
+			3
+		);
 
 		this.rgb = {
 			red: 0,

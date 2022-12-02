@@ -139,6 +139,12 @@ export default class Main extends Phaser.Scene {
 		this.fire;
 		this.playerFiring;
 		this.robotDeath;
+
+		this.walkers;
+		this.possibleWalkerDirections = ["up", "down", "left", "right"];
+		this.walkerSpeed;
+		this.walkerCollided = false;
+
 		this.playerDeath;
 		this.wave = 1;
 		this.wonWave = false;
@@ -202,6 +208,19 @@ export default class Main extends Phaser.Scene {
 		this.load.image("bullet", "./assets/playerBullet.png");
 		this.load.image("background", "./assets/background.jpg");
 
+		this.load.spritesheet("walker-up-down", "./assets/walker-up&down.png", {
+			frameWidth: 13,
+			frameHeight: 16,
+		});
+		this.load.spritesheet("walker-right", "./assets/walker-right.png", {
+			frameWidth: 12,
+			frameHeight: 16,
+		});
+		this.load.spritesheet("walker-left", "./assets/walker-left.png", {
+			frameWidth: 12,
+			frameHeight: 16,
+		});
+
 		this.load.audio("pickupCollectable", "assets/pickupCollectable.wav");
 		this.load.audio("player-firing", "assets/playerShoots.wav");
 		this.load.audio("playerDeath", "assets/playerDeath.wav");
@@ -222,6 +241,7 @@ export default class Main extends Phaser.Scene {
 		// background.setOrigin(0.5, 0.5).setDisplaySize(1200, 900);
 
 		//Setting the world bounds
+		this.wave = 3;
 		this.physics.world.setBounds(0, 0, 1600, 1200);
 		this.waveMessage = this.add
 			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
@@ -243,7 +263,7 @@ export default class Main extends Phaser.Scene {
 		//Enemy Declaration
 		this.robotEnemies = this.physics.add.group();
 		this.deathBlocks = this.physics.add.group();
-
+		this.walkers = this.physics.add.group();
 		this.collectableInfo = this.physics.add.group();
 
 		for (let i = 0; i < 20 + 15 * (this.wave - 1); i++) {
@@ -257,7 +277,27 @@ export default class Main extends Phaser.Scene {
 			enemy.setCollideWorldBounds(true);
 			this.physics.add.existing(enemy);
 		}
-		this.add.rectangle;
+
+		if (this.wave >= 3) {
+			for (let f = 0; f < 5 + (this.wave - 3) * 2; f++) {
+				const walkerCoOrds = this.generateRandomCoOrds();
+				const walker = this.walkers.create(
+					walkerCoOrds[0],
+					walkerCoOrds[1],
+					"walker-up-down"
+				);
+				walker.setScale(3.8);
+				walker.setCollideWorldBounds(true);
+				walker.setDataEnabled();
+				console.log("walker", walker);
+
+				walker.setData({
+					direction: this.possibleWalkerDirections[Math.floor(Math.random() * 4)],
+				});
+				this.physics.add.existing(walker).setImmovable(true);
+				this.walkerSpeed = 20 + (this.wave - 3) * 5;
+			}
+		}
 
 		for (let g = 0; g < 5 - this.alreadyCollected; g++) {
 			const collectableCoOrds = this.generateRandomCoOrds();
@@ -323,15 +363,15 @@ export default class Main extends Phaser.Scene {
 			}
 		);
 
-		this.physics.add.collider(
-			this.player,
-			this.robotEnemies,
-			this.playerDyingFunction,
-			() => {
-				return !this.playerDead;
-			},
-			this
-		);
+		// this.physics.add.collider(
+		// 	this.player,
+		// 	this.robotEnemies,
+		// 	this.playerDyingFunction,
+		// 	() => {
+		// 		return !this.playerDead;
+		// 	},
+		// 	this
+		// );
 
 		this.physics.add.collider(
 			this.player,
@@ -342,6 +382,43 @@ export default class Main extends Phaser.Scene {
 			},
 			this
 		);
+		this.physics.add.collider(
+			this.player,
+			this.walkers,
+			this.playerDyingFunction,
+			() => {
+				return !this.playerDead;
+			},
+			this
+		);
+
+		this.physics.add.collider(this.walkers, this.deathBlocks, (walker, block) => {
+			walker.setVelocityY(0);
+			walker.setVelocityX(0);
+			walker.data.values.direction = this.oppositeDirection(walker);
+		});
+
+		this.physics.world.setBoundsCollision(true, true, true, true);
+		this.physics.world.on("worldbounds", (body) => {
+			if (body) {
+				if (
+					body.gameObject.texture.key === "walker-up-down" ||
+					body.gameObject.texture.key === "walker-right" ||
+					body.gameObject.texture.key === "walker-left"
+				) {
+					console.log("collided", body);
+					walker.setVelocityY(0);
+					walker.setVelocityX(0);
+					const randDir = Math.floor(Math.random() * 4);
+					console.log(this.possibleWalkerDirections, walker.data.values.direction);
+					if (
+						this.possibleWalkerDirections[randDir] !== walker.data.values.direction
+					) {
+						walker.data.values.direction = this.possibleWalkerDirections[randDir];
+					}
+				}
+			}
+		});
 
 		this.physics.add.collider(
 			this.playerBullets,
@@ -359,6 +436,14 @@ export default class Main extends Phaser.Scene {
 		this.physics.add.collider(
 			this.playerBullets,
 			this.deathBlocks,
+			(bullet, enemy) => {
+				bullet.destroy();
+			}
+		);
+
+		this.physics.add.collider(
+			this.playerBullets,
+			this.walkers,
 			(bullet, enemy) => {
 				bullet.destroy();
 			}
@@ -393,9 +478,31 @@ export default class Main extends Phaser.Scene {
 
 		this.anims.create({
 			key: "robot-walk",
-			frameRate: 9,
+			frameRate: 6,
 			repeat: -1,
 			frames: this.anims.generateFrameNumbers("mainRobots", {start: 0, end: 2}),
+		});
+
+		this.anims.create({
+			key: "walker-walk-up-down",
+			frameRate: 6,
+			repeat: -1,
+			frames: this.anims.generateFrameNumbers("walker-up-down", {
+				start: 0,
+				end: 2,
+			}),
+		});
+		this.anims.create({
+			key: "walker-walk-right",
+			frameRate: 6,
+			repeat: -1,
+			frames: this.anims.generateFrameNumbers("walker-right", {start: 0, end: 2}),
+		});
+		this.anims.create({
+			key: "walker-walk-left",
+			frameRate: 6,
+			repeat: -1,
+			frames: this.anims.generateFrameNumbers("walker-left", {start: 0, end: 2}),
 		});
 
 		this.anims.create({
@@ -434,6 +541,44 @@ export default class Main extends Phaser.Scene {
 		//this.weaponType = "double-shot";
 	}
 
+	oppositeDirection(walker) {
+		switch (walker.data.values.direction) {
+			case "up":
+				return "down";
+				break;
+			case "down":
+				return "up";
+				break;
+			case "left":
+				return "right";
+				break;
+			case "right":
+				return "left";
+				break;
+		}
+	}
+
+	walkerSetDirection(walker) {
+		switch (walker.data.values.direction) {
+			case "up":
+				walker.anims.play("walker-walk-up-down", true);
+				walker.setVelocityY(-this.walkerSpeed);
+				break;
+			case "down":
+				walker.anims.play("walker-walk-up-down", true);
+				walker.setVelocityY(this.walkerSpeed);
+				break;
+			case "left":
+				walker.anims.play("walker-walk-left", true);
+				walker.setVelocityX(-this.walkerSpeed);
+				break;
+			case "right":
+				walker.anims.play("walker-walk-right", true);
+				walker.setVelocityX(this.walkerSpeed);
+				break;
+		}
+	}
+
 	playerDyingFunction(player, enemy) {
 		localStorage.setItem("high-score-2084", this.highScore);
 
@@ -441,7 +586,7 @@ export default class Main extends Phaser.Scene {
 		this.playerDead = true;
 		this.playerDeath.play();
 		// this.player.anims.play("idle", true);
-		this.player.setVelocity(0);
+		player.setVelocity(0);
 		this.alreadyCollectedThisRound = 0;
 		this.robotEnemies.children.iterate((child) => {
 			child.body.reset(child.x, child.y);
@@ -563,8 +708,6 @@ export default class Main extends Phaser.Scene {
 		// this.theScoreText.y = this.player.y - 50;
 		// this.theScoreText.text = `SCORE: ${this.theScore}`;
 
-		console.log(this.playerBullets.children.entries.length);
-
 		if (!this.playerDead && !this.wonWave) {
 			console.log("playing");
 			if (this.theScore >= this.previousLiveScore + 15000) {
@@ -585,6 +728,10 @@ export default class Main extends Phaser.Scene {
 			this.robotEnemies.children.iterate((child) => {
 				this.physics.moveToObject(child, this.player, 20 + 10 * (this.wave - 1));
 				child.anims.play("robot-walk", true);
+			});
+
+			this.walkers.children.iterate((child, index) => {
+				this.walkerSetDirection(child);
 			});
 
 			if (this.fire.isDown) {
