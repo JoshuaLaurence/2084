@@ -23,9 +23,21 @@ export default class Start extends Phaser.Scene {
 	}
 
 	create() {
+		const screenCenterX =
+			this.cameras.main.worldView.x + this.cameras.main.width / 2;
+		const screenCenterY =
+			this.cameras.main.worldView.y + this.cameras.main.height / 2;
+
+		this.add
+			.text(screenCenterX, screenCenterY - 200, "2084", {
+				fontFamily: "GameFont",
+			})
+			.setScale(7)
+			.setResolution(3)
+			.setOrigin(0.5, 0.5);
 		this.startButton = new Button(
-			window.innerWidth / 2 - 135,
-			window.innerHeight / 2 + 100,
+			screenCenterX,
+			screenCenterY + 200,
 			"Start",
 			this,
 			() => {
@@ -40,6 +52,9 @@ export default class Start extends Phaser.Scene {
 			red: 0,
 			blue: 0,
 			green: 0,
+			redIncrease: true,
+			greenIncrease: true,
+			blueIncrease: true,
 		};
 
 		this.backgroundMusic = this.sound.add("titleMusic");
@@ -56,7 +71,8 @@ export default class Start extends Phaser.Scene {
 		if (this.changeRGB / 1000 >= 10) {
 			this.changeRGB = 0;
 			this.rgb.red += 0.1;
-			this.rgb.green += 0.1;
+			this.rgb.green += 0.001;
+			this.rgb.blue += 0.01;
 		}
 
 		this.cameras.main.backgroundColor.setTo(

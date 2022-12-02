@@ -172,6 +172,7 @@ export default class Main extends Phaser.Scene {
 	init(data) {
 		this.playerDead = data.playerDead;
 		this.highScore = localStorage.getItem("high-score-2084");
+		this.playerBullets = new Bullets(this);
 		if (data.fromStart) {
 			this.wave = 1;
 			this.lives = 3;
@@ -241,7 +242,6 @@ export default class Main extends Phaser.Scene {
 		// background.setOrigin(0.5, 0.5).setDisplaySize(1200, 900);
 
 		//Setting the world bounds
-		this.wave = 3;
 		this.physics.world.setBounds(0, 0, 1600, 1200);
 		this.waveMessage = this.add
 			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
@@ -363,15 +363,15 @@ export default class Main extends Phaser.Scene {
 			}
 		);
 
-		// this.physics.add.collider(
-		// 	this.player,
-		// 	this.robotEnemies,
-		// 	this.playerDyingFunction,
-		// 	() => {
-		// 		return !this.playerDead;
-		// 	},
-		// 	this
-		// );
+		this.physics.add.collider(
+			this.player,
+			this.robotEnemies,
+			this.playerDyingFunction,
+			() => {
+				return !this.playerDead;
+			},
+			this
+		);
 
 		this.physics.add.collider(
 			this.player,
@@ -709,7 +709,6 @@ export default class Main extends Phaser.Scene {
 		// this.theScoreText.text = `SCORE: ${this.theScore}`;
 
 		if (!this.playerDead && !this.wonWave) {
-			console.log("playing");
 			if (this.theScore >= this.previousLiveScore + 15000) {
 				console.log("new score");
 				this.lives += 1;

@@ -44,6 +44,13 @@ body {
 	text-align: right;
 }
 
+.fontLoader {
+	position: absolute;
+	left: -1000px;
+	visibility: hidden;
+}
+
+
 #scoreAdditions {
 	display: flex;
 	position: fixed;
@@ -75,7 +82,7 @@ body {
 	0% {
 		transform: scale(1)
 	}
-	20% {
+	10% {
 		transform: scale(3);
 	}
 	100% {
@@ -88,7 +95,7 @@ body {
 	0% {
 		transform: scale(1)
 	}
-	20% {
+	10% {
 		transform: scale(4);
 	}
 	100% {
@@ -101,7 +108,7 @@ body {
 	font-size: 30px;
 	height: fit-content;
 	width: fit-content;
-	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-family:"GameFont";
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	color: white;
 	/* transform: scale(1); */
@@ -113,7 +120,7 @@ body {
 	font-size: 40px;
 	height: fit-content;
 	width: fit-content;
-	font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	font-family:"GameFont";
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 	color: white;
 	/* transform: scale(1); */
