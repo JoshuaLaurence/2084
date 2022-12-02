@@ -1,6 +1,6 @@
 # 2084
 
-### An adapted homage to the original Robotron: 2084 arcade game made with Phaser JS
+### An adapted homage of the original Robotron: 2084 arcade game made with Phaser JS
 
 <img width="1728" alt="Screenshot 2022-12-02 at 20 41 49" src="https://user-images.githubusercontent.com/80101895/205382466-9495f52c-1db4-4699-bcb8-566f2074e70f.png">
 
