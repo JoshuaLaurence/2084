@@ -53,7 +53,6 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 		super.preUpdate(time, delta);
 
 		if (!this.scene.cameras.main.worldView.contains(this.x, this.y)) {
-			console.log("deleted");
 			this.destroy();
 		}
 	}
@@ -292,7 +291,6 @@ export default class Main extends Phaser.Scene {
 				walker.setScale(3.8);
 				walker.setCollideWorldBounds(true);
 				walker.setDataEnabled();
-				console.log("walker", walker);
 
 				walker.setData({
 					direction: this.possibleWalkerDirections[Math.floor(Math.random() * 4)],
@@ -425,11 +423,9 @@ export default class Main extends Phaser.Scene {
 					body.gameObject.texture.key === "walker-right" ||
 					body.gameObject.texture.key === "walker-left"
 				) {
-					console.log("collided", body);
 					walker.setVelocityY(0);
 					walker.setVelocityX(0);
 					const randDir = Math.floor(Math.random() * 4);
-					console.log(this.possibleWalkerDirections, walker.data.values.direction);
 					if (
 						this.possibleWalkerDirections[randDir] !== walker.data.values.direction
 					) {
@@ -601,7 +597,6 @@ export default class Main extends Phaser.Scene {
 	playerDyingFunction(player, enemy) {
 		localStorage.setItem("high-score-2084", this.highScore);
 
-		console.log(localStorage.getItem("high-score-2084"));
 		this.playerDead = true;
 		this.playerDeath.play();
 		// this.player.anims.play("idle", true);
@@ -625,12 +620,9 @@ export default class Main extends Phaser.Scene {
 				{min: this.player.x + 150, max: this.physics.world.bounds.width},
 				{min: 0, max: this.player.x - 150},
 			];
-			console.log(this);
 			const range = ranges[Math.floor(Math.random() * ranges.length)];
 			enemyX = Math.floor(Math.random() * (range.max - range.min + 1) + range.min);
 		}
-
-		console.log([enemyX, enemyY]);
 
 		return [enemyX, enemyY];
 	}
@@ -655,7 +647,6 @@ export default class Main extends Phaser.Scene {
 			const timout = setTimeout(() => {
 				this.bigScoreDisplay.innerHTML = "";
 			}, 1200);
-			console.log(timout);
 			this.previousScoreTimeouts.push(timout);
 		} else if (scoreType === "collectable") {
 			this.theScore += this.alreadyCollectedThisRound * 1000;
@@ -675,7 +666,6 @@ export default class Main extends Phaser.Scene {
 			const timout = setTimeout(() => {
 				this.bigScoreDisplay.innerHTML = "";
 			}, 1200);
-			console.log(timout);
 			this.previousScoreTimeouts.push(timout);
 		}
 	}
@@ -710,7 +700,6 @@ export default class Main extends Phaser.Scene {
 			const timout = setTimeout(() => {
 				this.bigScoreDisplay.innerHTML = "";
 			}, 1200);
-			console.log(timout);
 			this.previousScoreTimeouts.push(timout);
 		}
 	}
@@ -729,7 +718,6 @@ export default class Main extends Phaser.Scene {
 
 		if (!this.playerDead && !this.wonWave) {
 			if (this.theScore >= this.previousLiveScore + 15000) {
-				console.log("new score");
 				this.lives += 1;
 				this.previousLiveScore += 15000;
 				this.extraLife.play();
@@ -816,7 +804,6 @@ export default class Main extends Phaser.Scene {
 					this.player.setVelocityY(300);
 				}
 			} else if (this.pauseButton.isDown) {
-				console.log("Paused");
 				localStorage.setItem("high-score-2084", this.highScore);
 				this.scene.pause();
 				this.scene.launch("pause");
@@ -828,7 +815,6 @@ export default class Main extends Phaser.Scene {
 
 			if (this.robotEnemies.children.entries.length === 0) {
 				this.wonWave = true;
-				console.log("YOU WIN");
 				this.player.setVelocityY(0);
 				this.player.setVelocityX(0);
 				this.cameras.main.zoomTo(0.005, 1000);

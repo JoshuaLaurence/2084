@@ -67,7 +67,6 @@ export default class Start extends Phaser.Scene {
 
 	update(time, delta) {
 		this.changeRGB += time;
-		console.log(this.rgb);
 		if (this.changeRGB / 1000 >= 10) {
 			this.changeRGB = 0;
 			if (this.rgb.redIncrease) {

@@ -6,15 +6,12 @@ import Start from "./scenes/Start.js";
 import Story from "./scenes/StartingStory.js";
 
 const highScore = localStorage.getItem("high-score-2084");
-console.log(typeof highScore);
 if (
 	typeof highScore === undefined ||
 	highScore === null ||
 	highScore.length === 0
 ) {
-	console.log("None present");
 	localStorage.setItem("high-score-2084", 10000);
-	console.log(localStorage.getItem("high-score-2084"));
 }
 
 document.getElementsByClassName(
@@ -44,6 +41,5 @@ for (let i = 0; i < 3; i++) {
 }
 
 window.addEventListener("resize", (event) => {
-	console.log("Resizing");
 	game.scale.resize(window.innerWidth - 90, window.innerHeight - 200);
 });

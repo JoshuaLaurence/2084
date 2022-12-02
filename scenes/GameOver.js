@@ -32,7 +32,6 @@ export default class GameOver extends Phaser.Scene {
 				.setScale(5)
 				.setResolution(3)
 				.setOrigin(0.5, 0.5);
-			this.cameras.main.setBackgroundColor("rgb(0,0,0, 0.2");
 		} else {
 			this.add
 				.text(screenCenterX, screenCenterY - 200, `${this.lives} lives remaining`, {
@@ -60,7 +59,6 @@ export default class GameOver extends Phaser.Scene {
 		);
 
 		if (this.lives === 0) {
-			console.log("Changing Text");
 			this.restartButton = "Restart";
 		}
 
