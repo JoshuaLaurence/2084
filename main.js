@@ -5,22 +5,21 @@ import Pause from "./scenes/Pause.js";
 import Start from "./scenes/Start.js";
 import Story from "./scenes/StartingStory.js";
 
-const highScore = localStorage.getItem("high-score");
-if (typeof highScore === undefined) {
+const highScore = localStorage.getItem("high-score-2084");
+console.log(typeof highScore);
+if (
+	typeof highScore === undefined ||
+	highScore === null ||
+	highScore.length === 0
+) {
 	console.log("None present");
-	localStorage.setItem("high-score", 10000);
-	console.log(localStorage.getItem("high-score"));
+	localStorage.setItem("high-score-2084", 10000);
+	console.log(localStorage.getItem("high-score-2084"));
 }
 
 document.getElementsByClassName(
 	"highScore"
-)[0].innerText = `HIGH SCORE: ${localStorage.getItem("high-score")}`;
-
-for (let i = 0; i < 3; i++) {
-	const img = document.createElement("img");
-	img.src = "assets/player-dead.png";
-	document.getElementById("lives").appendChild(img);
-}
+)[0].innerText = `HIGH SCORE: ${localStorage.getItem("high-score-2084")}`;
 
 const game = new Phaser.Game({
 	type: Phaser.AUTO,
@@ -37,6 +36,12 @@ const game = new Phaser.Game({
 	},
 	scene: [Start, Story, Main, GameOver, Pause],
 });
+
+for (let i = 0; i < 3; i++) {
+	const img = document.createElement("img");
+	img.src = "assets/player-dead.png";
+	document.getElementById("lives").appendChild(img);
+}
 
 window.addEventListener("resize", (event) => {
 	console.log("Resizing");

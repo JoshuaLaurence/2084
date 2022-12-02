@@ -11,7 +11,7 @@ export default class Story extends Phaser.Scene {
 			"This place used to harbour lifeforms similar to humans back in the early 2050s",
 			"Now, over the last thirty years,",
 			"it has become a chaotic inferno ruled by animatronics we've named the 'Robotrons'",
-			"How or why this has happened we don't know. Yet.",
+			"How or why this has happened we don't know. Yet...",
 			"The task is simple, gather as much information as possible,",
 			"stored within these capsules",
 			"",
@@ -20,12 +20,13 @@ export default class Story extends Phaser.Scene {
 			"maybe we can learn from the mistakes this planet made.",
 			"Ensure our planet doesn't fall into the same traps",
 			"Technology now rules our lives, we just don't want it to start taking them.",
-			"That is the mission",
+			"That is the mission.",
 			"Do you accept?",
 			"If so, press ENTER to continue",
 		];
 
 		this.story;
+		this.waveMessage;
 		this.line = [];
 
 		this.wordIndex = 0;
@@ -79,15 +80,39 @@ export default class Story extends Phaser.Scene {
 	}
 
 	create() {
-		this.story = this.add.text(0, 0, "Press BACKSPACE To Skip\n", {
-			fontFamily: "Segeo UI",
-			fontSize: "40px",
-			color: "#ffffff",
-		});
+		this.waveMessage = this.add
+			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
+				fontFamily: "GameFont",
+				color: "#FFFFFF",
+			})
+			.setOrigin(0.5, 0.5)
+			.setResolution(100);
+		this.waveMessage.setRotation(-100);
+		this.waveMessage.setScale(2000);
+		this.waveMessage.alpha = 0;
+		this.waveMessage.fontFamily = "GameFont";
+
+		this.story = this.add
+			.text(
+				this.game.scale.width / 2,
+				this.game.scale.height / 2,
+				"\nPress BACKSPACE To Skip\n\n",
+				{
+					fontFamily: "Segeo UI",
+					fontSize: "40px",
+					color: "#ffffff",
+					align: "center",
+				}
+			)
+			.setOrigin(0.5, 0.5)
+			.setResolution(2);
+		this.story.lineSpacing = 20;
+		this.story;
 
 		this.skip = this.input.keyboard.addKey(
 			Phaser.Input.Keyboard.KeyCodes.BACKSPACE
 		);
+
 		this.done = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
 		this.nextLine();
@@ -95,13 +120,31 @@ export default class Story extends Phaser.Scene {
 
 	update() {
 		if (this.skip.isDown) {
-			this.scene.stop();
-			this.scene.start("Main", {playerDead: false, fromStart: false});
+			this.cameras.main.zoomTo(0.005, 1000);
+			this.cameras.main.rotateTo(100, 1000);
+			this.add.tween({
+				targets: this.waveMessage,
+				duration: 1500,
+				alpha: 1,
+				onComplete: () => {
+					this.scene.stop();
+					this.scene.launch("Main", {playerDead: false, fromStart: true});
+				},
+			});
 		}
 
 		if (this.done.isDown && this.storyOver) {
-			this.scene.stop();
-			this.scene.start("Main", {playerDead: false, fromStart: false});
+			this.cameras.main.zoomTo(0.005, 1000);
+			this.cameras.main.rotateTo(100, 1000);
+			this.add.tween({
+				targets: this.waveMessage,
+				duration: 1500,
+				alpha: 1,
+				onComplete: () => {
+					this.scene.stop();
+					this.scene.launch("Main", {playerDead: false, fromStart: true});
+				},
+			});
 		}
 	}
 }

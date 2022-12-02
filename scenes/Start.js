@@ -23,16 +23,6 @@ export default class Start extends Phaser.Scene {
 	}
 
 	create() {
-		const highScore = localStorage.getItem("high-score");
-		if (highScore === undefined) {
-			console.log("None present");
-			localStorage.setItem("high-score", 10000);
-			console.log(localStorage.getItem("high-score"));
-		}
-
-		document.getElementsByClassName(
-			"highScore"
-		)[0].innerText = `HIGH SCORE: ${localStorage.getItem("high-score")}`;
 		this.startButton = new Button(100, 100, "Start", this, () => {
 			this.backgroundMusic.volume = 0.3;
 			resetLives();

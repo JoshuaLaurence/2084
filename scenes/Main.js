@@ -131,7 +131,8 @@ export default class Main extends Phaser.Scene {
 		this.keyW;
 		this.lives = 3;
 		this.previousLiveScore = 0;
-		this.highScore = localStorage.getItem("high-score");
+		this.extraLife;
+		this.highScore = localStorage.getItem("high-score-2084");
 		this.keyA;
 		this.keyS;
 		this.keyD;
@@ -164,7 +165,7 @@ export default class Main extends Phaser.Scene {
 
 	init(data) {
 		this.playerDead = data.playerDead;
-		this.highScore = localStorage.getItem("high-score");
+		this.highScore = localStorage.getItem("high-score-2084");
 		if (data.fromStart) {
 			this.wave = 1;
 			this.lives = 3;
@@ -205,6 +206,8 @@ export default class Main extends Phaser.Scene {
 		this.load.audio("player-firing", "assets/playerShoots.wav");
 		this.load.audio("playerDeath", "assets/playerDeath.wav");
 		this.load.audio("robotDeath", "assets/robotDeath.wav");
+		this.load.audio("extraLife", "assets/extraLife.wav");
+		this.load.audio("powerUp", "assets/powerUp.wav");
 
 		this.load.image("collectable", "assets/collectable.png");
 		this.load.image("deathCube", "./assets/deathCube.png");
@@ -219,17 +222,6 @@ export default class Main extends Phaser.Scene {
 		// background.setOrigin(0.5, 0.5).setDisplaySize(1200, 900);
 
 		//Setting the world bounds
-		window.addEventListener(
-			"beforeunload",
-			function (e) {
-				localStorage.setItem("high-score", this.highScore);
-			},
-			{capture: true}
-		);
-
-		document.addEventListener("visibilitychange", (event) => {
-			localStorage.setItem("high-score", this.highScore);
-		});
 		this.physics.world.setBounds(0, 0, 1600, 1200);
 		this.waveMessage = this.add
 			.text(this.game.scale.width / 2, this.game.scale.height / 2, "Wave 1", {
@@ -294,6 +286,7 @@ export default class Main extends Phaser.Scene {
 		this.playerDeath = this.sound.add("playerDeath");
 		this.robotDeath = this.sound.add("robotDeath");
 		this.pickupCollectable = this.sound.add("pickupCollectable");
+		this.extraLife = this.sound.add("extraLife");
 
 		this.playerFire.volume = 0.2;
 		this.playerDeath.volume = 0.5;
@@ -442,9 +435,9 @@ export default class Main extends Phaser.Scene {
 	}
 
 	playerDyingFunction(player, enemy) {
-		localStorage.setItem("high-score", this.highScore);
+		localStorage.setItem("high-score-2084", this.highScore);
 
-		console.log(localStorage.getItem("high-score"));
+		console.log(localStorage.getItem("high-score-2084"));
 		this.playerDead = true;
 		this.playerDeath.play();
 		// this.player.anims.play("idle", true);
@@ -479,6 +472,7 @@ export default class Main extends Phaser.Scene {
 	}
 
 	bumpUpScore(scoreType) {
+		localStorage.setItem("high-score-2084", this.highScore);
 		if (scoreType === "robot") {
 			this.theScore += 100;
 			this.currentScore.innerText = `SCORE: ${this.theScore}`;
@@ -536,6 +530,24 @@ export default class Main extends Phaser.Scene {
 			setTimeout(() => {
 				newLife.classList.add("fadeIn");
 			}, 0);
+
+			this.bigScoreDisplay.innerHTML = "";
+			const largeScore = document.createElement("label");
+			this.bigScoreDisplay.appendChild(largeScore);
+			largeScore.classList.add("largeScore");
+			largeScore.innerText = `+EXTRA LIFE`;
+			if (this.previousScoreTimeouts.length > 0) {
+				clearTimeout(this.previousScoreTimeouts[0]);
+				this.previousScoreTimeouts = [];
+			}
+			// setTimeout(() => {
+			// 	smallScore.
+			// }, 1200);
+			const timout = setTimeout(() => {
+				this.bigScoreDisplay.innerHTML = "";
+			}, 1200);
+			console.log(timout);
+			this.previousScoreTimeouts.push(timout);
 		}
 	}
 
@@ -554,10 +566,12 @@ export default class Main extends Phaser.Scene {
 		console.log(this.playerBullets.children.entries.length);
 
 		if (!this.playerDead && !this.wonWave) {
+			console.log("playing");
 			if (this.theScore >= this.previousLiveScore + 15000) {
 				console.log("new score");
 				this.lives += 1;
 				this.previousLiveScore += 15000;
+				this.extraLife.play();
 				this.updateLives("add");
 			}
 
@@ -638,7 +652,7 @@ export default class Main extends Phaser.Scene {
 				}
 			} else if (this.pauseButton.isDown) {
 				console.log("Paused");
-				localStorage.setItem("high-score", this.highScore);
+				localStorage.setItem("high-score-2084", this.highScore);
 				this.scene.pause();
 				this.scene.launch("pause");
 			} else {
@@ -650,6 +664,8 @@ export default class Main extends Phaser.Scene {
 			if (this.robotEnemies.children.entries.length === 0) {
 				this.wonWave = true;
 				console.log("YOU WIN");
+				this.player.setVelocityY(0);
+				this.player.setVelocityX(0);
 				this.cameras.main.zoomTo(0.005, 1000);
 				this.cameras.main.rotateTo(100, 1000);
 				this.waveMessage.text = `Wave ${this.wave + 1}`;
