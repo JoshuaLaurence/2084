@@ -243,6 +243,10 @@ export default class Main extends Phaser.Scene {
 		// background.setOrigin(0.5, 0.5).setDisplaySize(1200, 900);
 
 		//Setting the world bounds
+
+		//Dev
+		//
+
 		this.physics.world.setBounds(0, 0, 1600, 1200);
 		this.add.tileSprite(775, 575, 1600, 1200, "background").setScale(2);
 		this.waveMessage = this.add
@@ -295,6 +299,8 @@ export default class Main extends Phaser.Scene {
 				walker.setData({
 					direction: this.possibleWalkerDirections[Math.floor(Math.random() * 4)],
 				});
+
+				walker.body.onWorldBounds = true;
 				this.physics.add.existing(walker).setImmovable(true);
 				this.walkerSpeed = 20 + (this.wave - 3) * 5;
 			}
@@ -423,14 +429,12 @@ export default class Main extends Phaser.Scene {
 					body.gameObject.texture.key === "walker-right" ||
 					body.gameObject.texture.key === "walker-left"
 				) {
-					walker.setVelocityY(0);
-					walker.setVelocityX(0);
-					const randDir = Math.floor(Math.random() * 4);
-					if (
-						this.possibleWalkerDirections[randDir] !== walker.data.values.direction
-					) {
-						walker.data.values.direction = this.possibleWalkerDirections[randDir];
-					}
+					console.log(body);
+					body.setVelocityY(0);
+					body.setVelocityX(0);
+					body.gameObject.data.values.direction = this.oppositeDirection(
+						body.gameObject
+					);
 				}
 			}
 		});
